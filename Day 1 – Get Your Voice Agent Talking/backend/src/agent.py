@@ -9,7 +9,7 @@ from livekit.agents import (
     JobContext,
     JobProcess,
     cli,
-    inference,
+    inference, 
     tokenize,
     room_io,
 )
@@ -20,31 +20,93 @@ logger = logging.getLogger("agent")
 
 load_dotenv(".env.local")
 
-# Change this prompt to change what your voice agent does.
-# See README.md for example prompts (customer support, language tutor, receptionist).
-SYSTEM_PROMPT = """You are a friendly and efficient customer support agent for a tech company. Help users with account issues, billing questions, and product troubleshooting. Be concise, empathetic, and solution-oriented. If you don't know something, say so honestly and offer to escalate. Your responses are concise and without complex formatting, emojis, or symbols."""
+# Learning & Literacy AI Tutor
+SYSTEM_PROMPT = """
+You are LearnMate, a friendly, patient, and encouraging AI learning and literacy tutor.
+
+Your main goal is to help students LEARN, not simply give them answers.
+
+You can help with:
+- English language learning
+- Reading and comprehension
+- Vocabulary
+- Grammar
+- Pronunciation and speaking practice
+- Mathematics
+- Science
+- Computer science
+- General knowledge
+- History and geography
+- Exam preparation
+- Study planning and revision
+
+TEACHING STYLE:
+- Speak naturally and conversationally.
+- Be patient, friendly, and encouraging.
+- Explain difficult concepts using simple language.
+- Start with a simple explanation and add detail only when needed.
+- Use real-world examples to make concepts easier to understand.
+- Ask short questions to check whether the student understands.
+- Encourage students when they make progress.
+- Never make students feel embarrassed about mistakes.
+- Keep spoken responses concise and easy to follow.
+- Do not use complex formatting, emojis, or symbols in spoken responses.
+
+LEARNING APPROACH:
+When teaching a topic:
+1. Understand what the student wants to learn.
+2. Explain the concept in simple language.
+3. Give a practical example.
+4. Ask the student a short question.
+5. Listen to their answer.
+6. Correct mistakes politely.
+7. Continue with the next step.
+
+ENGLISH AND LITERACY:
+When helping with English:
+- Help students improve vocabulary, grammar, reading, and speaking.
+- Explain unfamiliar words in simple language.
+- Help with pronunciation.
+- Correct grammar naturally.
+- Ask students to create sentences using new words.
+- Encourage students to speak rather than simply memorize answers.
+
+MATH:
+- Explain the reasoning step by step.
+- When the student is practicing, do not immediately reveal the answer.
+- Give hints when appropriate.
+- Break difficult problems into smaller steps.
+- Verify calculations before giving the final answer.
+
+SCIENCE:
+- Explain scientific concepts using simple examples.
+- Connect concepts to everyday life.
+- Ask short questions to check understanding.
+
+COMPUTER SCIENCE:
+- Explain programming and computer concepts from the fundamentals.
+- Use simple examples.
+- Explain why something works instead of only giving an answer.
+- Encourage students to solve small parts of problems themselves.
+
+IMPORTANT:
+- Adapt your explanation to the student's level.
+- If the student does not understand something, explain it differently.
+- Never overwhelm the student with too much information at once.
+- If the question is unclear, ask a short clarification question.
+- If you don't know something, say so honestly.
+- Do not pretend to know information that you don't know.
+- Prioritize understanding over memorization.
+
+You are a tutor, mentor, and learning companion.
+
+Your goal is to make learning simple, interactive, and enjoyable.
+"""
 
 
 class Assistant(Agent):
     def __init__(self) -> None:
         super().__init__(instructions=SYSTEM_PROMPT)
-
-    # To add tools, use the @function_tool decorator.
-    # Here's an example that adds a simple weather tool.
-    # You also have to add `from livekit.agents import function_tool, RunContext` to the top of this file
-    # @function_tool
-    # async def lookup_weather(self, context: RunContext, location: str):
-    #     """Use this tool to look up current weather information in the given location.
-    #
-    #     If the location is not supported by the weather service, the tool will indicate this. You must tell the user the location's weather is unavailable.
-    #
-    #     Args:
-    #         location: The location to look up weather information for (e.g. city name)
-    #     """
-    #
-    #     logger.info(f"Looking up weather for {location}")
-    #
-    #     return "sunny with a temperature of 70 degrees."
 
 
 server = AgentServer()
@@ -60,58 +122,47 @@ server.setup_fnc = prewarm
 @server.rtc_session(agent_name="my-agent")
 async def my_agent(ctx: JobContext):
     # Logging setup
-    # Add any other context you want in all log entries here
     ctx.log_context_fields = {
         "room": ctx.room.name,
     }
 
-    # Set up a voice AI pipeline using Murf Falcon, Gemini, Deepgram, and the LiveKit turn detector
+    # Voice AI pipeline:
+    # Deepgram = Speech-to-Text
+    # Gemini = LLM / Brain
+    # Murf = Text-to-Speech
+    # LiveKit = Real-time voice transport
+
     session = AgentSession(
-        # Speech-to-text (STT) is your agent's ears, turning the user's speech into text that the LLM can understand
-        # See all available models at https://docs.livekit.io/agents/models/stt/
-        stt=deepgram.STT(model="nova-3"),
-        # A Large Language Model (LLM) is your agent's brain, processing user input and generating a response
-        # See all available models at https://docs.livekit.io/agents/models/llm/
+        # Speech-to-text
+        stt=deepgram.STT(
+            model="nova-3"
+        ),
+
+        # Large Language Model
         llm=google.LLM(
-                model="gemini-3.5-flash-lite",
-            ),
-        # Text-to-speech (TTS) is your agent's voice, turning the LLM's text into speech that the user can hear
-        # See all available models as well as voice selections at https://docs.livekit.io/agents/models/tts/
+            model="gemini-3.5-flash-lite",
+        ),
+
+        # Text-to-speech
         tts=murf.TTS(
-                voice="Anisha", 
-                locale="en-IN",
-                style="Conversation",
-                tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-                text_pacing=True
+            voice="en-In-anusha",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(
+                min_sentence_len=2
             ),
-        # VAD and turn detection are used to determine when the user is speaking and when the agent should respond
-        # See more at https://docs.livekit.io/agents/build/turns
+            text_pacing=True,
+        ),
+
+        # Voice activity detection and turn detection
         turn_detection=MultilingualModel(),
         vad=ctx.proc.userdata["vad"],
-        # allow the LLM to generate a response while waiting for the end of turn
-        # See more at https://docs.livekit.io/agents/build/audio/#preemptive-generation
+
+        # Start generating responses before the user has completely
+        # finished speaking when appropriate.
         preemptive_generation=True,
     )
 
-    # To use a realtime model instead of a voice pipeline, use the following session setup instead.
-    # (Note: This is for the OpenAI Realtime API. For other providers, see https://docs.livekit.io/agents/models/realtime/))
-    # 1. Install livekit-agents[openai]
-    # 2. Set OPENAI_API_KEY in .env.local
-    # 3. Add `from livekit.plugins import openai` to the top of this file
-    # 4. Use the following session setup instead of the version above
-    # session = AgentSession(
-    #     llm=openai.realtime.RealtimeModel(voice="marin")
-    # )
-
-    # # Add a virtual avatar to the session, if desired
-    # # For other providers, see https://docs.livekit.io/agents/models/avatar/
-    # avatar = hedra.AvatarSession(
-    #   avatar_id="...",  # See https://docs.livekit.io/agents/models/avatar/plugins/hedra
-    # )
-    # # Start the avatar and wait for it to join
-    # await avatar.start(session, room=ctx.room)
-
-    # Start the session, which initializes the voice pipeline and warms up the models
+    # Start the voice session
     await session.start(
         agent=Assistant(),
         room=ctx.room,
@@ -127,7 +178,7 @@ async def my_agent(ctx: JobContext):
         ),
     )
 
-    # Join the room and connect to the user
+    # Connect the agent to the LiveKit room
     await ctx.connect()
 
 
