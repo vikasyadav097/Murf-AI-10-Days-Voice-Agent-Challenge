@@ -1,141 +1,351 @@
-# Frontend — Voice Agent UI
+# 🎙️ Murf AI Voice Agent Challenge
 
-The React/Next.js frontend for the Voice Agent Starter. Built with [LiveKit Agents UI](https://livekit.io/ui) components, it provides a polished interface for real-time voice conversations with your agent.
+> Build a production-ready real-time AI Voice Agent powered by Murf Falcon TTS, LiveKit, Deepgram STT, and LLM intelligence.
 
-### Features
+This project creates a natural conversational AI voice assistant where users can speak through their microphone and receive intelligent AI-generated voice responses in real time.
 
-- Real-time voice interaction with LiveKit Agents
-- Camera video streaming support
-- Screen sharing capabilities
-- Multiple audio visualizer styles (`bar`, `grid`, `radial`, `wave`, `aura`)
-- Light/dark theme switching with system preference detection
-- Customizable branding, colors, and UI text via configuration
+The system combines speech recognition, large language models, and ultra-low latency text-to-speech technology to deliver a human-like voice interaction experience.
 
-## Setup
+---
 
-### 1. Install dependencies
+# 🚀 Features
+
+## 🎤 Real-Time Voice Conversation
+- Real-time microphone input
+- AI understands user speech
+- Instant voice responses
+- Low latency conversational experience
+
+## 🔊 Murf Falcon TTS
+- High-quality AI voice generation
+- Natural human-like speech
+- Multiple voice support
+- Fast text-to-speech processing
+
+## 🧠 AI Intelligence
+- Context-aware conversations
+- Custom system prompts
+- Flexible AI agent personality
+- Supports multiple use cases
+
+## 📝 Speech Recognition
+- Deepgram Nova Speech-to-Text
+- Accurate voice transcription
+- Real-time processing
+
+## ⚡ LiveKit Real-Time Communication
+- WebRTC based audio streaming
+- Scalable voice infrastructure
+- Low-latency communication
+
+---
+
+# 🏗️ Architecture
+
+```
+User Speech
+     |
+     ↓
+Microphone Input
+     |
+     ↓
+Deepgram STT
+(Speech To Text)
+     |
+     ↓
+LLM Brain
+(Gemini / OpenAI)
+     |
+     ↓
+Murf Falcon TTS
+(Text To Speech)
+     |
+     ↓
+AI Voice Response
+```
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
+- Next.js
+- TypeScript
+- LiveKit Client SDK
+
+## Backend
+- Python
+- LiveKit Agents Framework
+- Async Programming
+
+## AI Services
+- Murf Falcon TTS
+- Deepgram STT
+- Google Gemini / OpenAI
+
+## Development Tools
+- Git
+- GitHub
+- uv Package Manager
+- pnpm
+- Docker
+
+---
+
+# 📂 Project Structure
+
+```
+Murf-AI-10-Days-Voice-Agent-Challenge/
+
+│
+├── backend/
+│   ├── src/
+│   │   └── agent.py
+│   ├── .env.example
+│   └── pyproject.toml
+│
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   └── package.json
+│
+├── start_app.ps1
+├── start_app.sh
+└── README.md
+```
+
+---
+
+# ⚙️ Installation
+
+## Prerequisites
+
+Make sure you have:
+
+- Python 3.10+
+- Node.js 18+
+- uv package manager
+- pnpm
+- LiveKit Account
+
+---
+
+# Clone Repository
+
+```bash
+git clone https://github.com/vikasyadav097/Murf-AI-10-Days-Voice-Agent-Challenge.git
+
+cd Murf-AI-10-Days-Voice-Agent-Challenge
+```
+
+---
+
+# 🔐 Environment Setup
+
+Create `.env` files.
+
+## Backend Environment
+
+```env
+LIVEKIT_URL=
+LIVEKIT_API_KEY=
+LIVEKIT_API_SECRET=
+
+MURF_API_KEY=
+DEEPGRAM_API_KEY=
+
+GOOGLE_API_KEY=
+```
+
+## Frontend Environment
+
+```env
+LIVEKIT_URL=
+LIVEKIT_API_KEY=
+LIVEKIT_API_SECRET=
+```
+
+---
+
+# 📦 Backend Setup
+
+```bash
+cd backend
+
+uv sync
+
+uv run python src/agent.py download-files
+```
+
+---
+
+# 📦 Frontend Setup
 
 ```bash
 cd frontend
+
 pnpm install
 ```
 
-### 2. Configure environment
+---
 
-```bash
-cp .env.example .env.local
+# ▶️ Run Application
+
+## Windows
+
+From root directory:
+
+```powershell
+.\start_app.ps1
 ```
 
-Fill in your LiveKit credentials (same project as the backend):
+---
 
-```env
-LIVEKIT_URL=wss://your-project.livekit.cloud
-LIVEKIT_API_KEY=your_key
-LIVEKIT_API_SECRET=your_secret
-AGENT_NAME=my-agent
-```
+## Manual Run
 
-### 3. Run
+### Terminal 1
+
+Start LiveKit:
 
 ```bash
+livekit-server --dev
+```
+
+### Terminal 2
+
+Start AI Agent:
+
+```bash
+cd backend
+
+uv run python src/agent.py dev
+```
+
+### Terminal 3
+
+Start Frontend:
+
+```bash
+cd frontend
+
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Make sure your backend agent is running too.
-
-## Customization
-
-### Branding & UI (`app-config.ts`)
-
-Edit [`app-config.ts`](app-config.ts) to change branding, features, and button text:
-
-```ts
-export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'Murf AI',
-  pageTitle: 'Voice Agent Starter',
-  pageDescription: 'A voice agent powered by Murf Falcon — the fastest TTS API',
-
-  supportsChatInput: true,
-  supportsVideoInput: true,
-  supportsScreenShare: true,
-
-  logo: '/murf-logo.svg',
-  accent: '#6366F1',
-  logoDark: '/murf-logo-dark.svg',
-  accentDark: '#818cf8',
-  startButtonText: 'Start talking',
-
-  agentName: process.env.AGENT_NAME ?? undefined,
-};
-```
-
-### Audio visualizers
-
-Set `audioVisualizerType` in [`app-config.ts`](app-config.ts):
-
-| Type | Description | Key options |
-|------|-------------|-------------|
-| `bar` (default) | Vertical bars | `audioVisualizerBarCount` |
-| `grid` | Dot grid | `audioVisualizerGridRowCount`, `audioVisualizerGridColumnCount` |
-| `radial` | Circular bars | `audioVisualizerRadialBarCount`, `audioVisualizerRadialRadius` |
-| `wave` | Oscilloscope wave | `audioVisualizerWaveLineWidth` |
-| `aura` | Shader-based glow | `audioVisualizerAuraColorShift` |
-
-Use `audioVisualizerColor` / `audioVisualizerColorDark` to set accent colors across all modes.
-
-### Editing components
-
-All UI components are local and fully editable:
-
-- **`components/agents-ui/`** — Core UI: media controls, audio visualizers, chat transcript, session provider
-- **`components/app/`** — App-level logic: view transitions, welcome screen, theming
-- **`components/ui/`** — Primitive shadcn/ui components (button, select, tooltip, etc.)
-
-To update Agents UI components to the latest version:
-
-```bash
-pnpm shadcn:install
-```
-
-## Project Structure
+Open:
 
 ```
-frontend/
-├── app/
-│   ├── page.tsx                # Main page
-│   ├── layout.tsx              # Root layout
-│   └── api/token/route.ts      # LiveKit token endpoint
-├── components/
-│   ├── agents-ui/              # Agents UI components (visualizers, controls, chat)
-│   ├── app/                    # App components (welcome view, theme, controller)
-│   ├── ai-elements/            # AI conversation elements
-│   └── ui/                     # Primitive shadcn/ui components
-├── hooks/                      # React hooks (audio visualizers, controls)
-├── lib/                        # Utilities
-├── public/                     # Static assets (logos, fonts)
-├── styles/                     # Global CSS
-├── app-config.ts               # Branding & feature configuration
-└── package.json                # Dependencies (pnpm)
+http://localhost:3000
 ```
 
-## Deployment
+Click **Start Talking**, allow microphone access, and start speaking with your AI voice agent.
 
-### Vercel
+---
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/murf-ai/murf-livekit-starter&root-directory=frontend&env=LIVEKIT_URL,LIVEKIT_API_KEY,LIVEKIT_API_SECRET&project-name=murf-voice-agent&repository-name=murf-voice-agent)
+# 🎯 Use Cases
 
-Set these environment variables:
-- `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`
-- `AGENT_NAME` (optional — for explicit agent dispatch)
+## 🤖 AI Customer Support Agent
 
-The frontend and backend don't call each other directly — they both connect to LiveKit, which handles real-time audio transport. Use the same LiveKit project credentials on both.
+- Handle customer queries
+- Product assistance
+- Technical support automation
 
-## Links
+## 📚 AI Language Tutor
 
-- [LiveKit Agents UI](https://livekit.io/ui)
-- [LiveKit JavaScript SDK](https://github.com/livekit/client-sdk-js)
-- [LiveKit Docs](https://docs.livekit.io)
+- Speaking practice
+- Pronunciation improvement
+- Interactive learning
 
-## License
+## 🏥 AI Receptionist
 
-MIT — see [LICENSE](LICENSE).
+- Appointment scheduling
+- Information assistance
+- Voice-based services
+
+## 💼 Business Voice Assistant
+
+- Lead qualification
+- Meeting assistant
+- Workflow automation
+
+---
+
+# 🎙️ Murf Voice Options
+
+| Voice | Language |
+|---|---|
+| Anisha | Indian English |
+| Pooja | Indian English |
+| Samar | Indian English |
+| Amara | US English |
+| Gordon | US English |
+| Hazel | UK English |
+
+---
+
+# 🚀 Deployment
+
+## Backend Deployment
+
+Recommended platforms:
+
+- Railway
+- Render
+- AWS
+
+Required Variables:
+
+```
+MURF_API_KEY
+DEEPGRAM_API_KEY
+GOOGLE_API_KEY
+LIVEKIT_URL
+LIVEKIT_API_KEY
+LIVEKIT_API_SECRET
+```
+
+---
+
+## Frontend Deployment
+
+Recommended platform:
+
+- Vercel
+
+Required Variables:
+
+```
+LIVEKIT_URL
+LIVEKIT_API_KEY
+LIVEKIT_API_SECRET
+```
+
+---
+
+# 🔮 Future Improvements
+
+- Voice cloning support
+- Multi-language conversations
+- AI memory system
+- Emotion-aware responses
+- Mobile application
+- Custom AI personalities
+- Advanced analytics dashboard
+
+---
+
+# 👨‍💻 Author
+
+## Vikas Yadav
+
+GitHub:
+https://github.com/vikasyadav097
+
+---
+
+# 📜 License
+
+MIT License
+
+---
+
+⭐ Built with Murf Falcon, LiveKit, Deepgram and Generative AI.
